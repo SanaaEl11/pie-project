@@ -36,6 +36,9 @@ export function PlayerInterface({ onBack }: { onBack: () => void }) {
   const handleBuzz = async () => {
     if (!playerId) return;
     try {
+      // Play buzz sound
+      const buzzSound = new Audio("src/sounds/Buzz.mp3");
+      buzzSound.play().catch((error) => console.error("Error playing sound:", error));
       await buzz({ playerId });
     } catch (error) {
       toast.error("Failed to buzz");
@@ -45,7 +48,7 @@ export function PlayerInterface({ onBack }: { onBack: () => void }) {
   if (!playerId) {
     return (
       <div className="max-w-md mx-auto">
-        <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">&larr; Back</button>
+        <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">← Back</button>
         <h2 className="text-2xl font-bold mb-4">Join Competition</h2>
         <div className="space-y-4">
           <div>
@@ -82,7 +85,7 @@ export function PlayerInterface({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="max-w-md mx-auto text-center">
-      <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">&larr; Back</button>
+      <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">← Back</button>
       <h2 className="text-2xl font-bold mb-4">
         {competition?.name} - Question {competition?.currentQuestion}
       </h2>

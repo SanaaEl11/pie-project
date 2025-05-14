@@ -17,18 +17,45 @@ export function SignInForm() {
           setSubmitting(true);
           const formData = new FormData(e.target as HTMLFormElement);
           formData.set("flow", flow);
-          void signIn("password", formData).catch((_error) => {
-            const toastTitle =
-              flow === "signIn"
-                ? "Could not sign in, did you mean to sign up?"
-                : "Could not sign up, did you mean to sign in?";
-            toast.error(toastTitle);
-            setSubmitting(false);
-          });
+          console.log("FormData:", Object.fromEntries(formData)); // Add this line
+          void signIn("password", formData)
+            .then(() => {
+              toast.success(flow === "signIn" ? "Signed in successfully!" : "Signed up successfully!");
+              setSubmitting(false);
+            })
+            .catch((_error) => {
+              const toastTitle =
+                flow === "signIn"
+                  ? "Could not sign in, did you mean to sign up?"
+                  : "Could not sign up, did you mean to sign in?";
+              toast.error(toastTitle);
+              setSubmitting(false);
+            });
         }}
       >
-        <input className="input-field" type="email" name="email" placeholder="Email" required />
-        <input className="input-field" type="password" name="password" placeholder="Password" required />
+        {flow === "signUp" && (
+          <input
+            className="input-field"
+            type="text"
+            name="name"
+            placeholder="Name"
+            required
+          />
+        )}
+        <input
+          className="input-field"
+          type="email"
+          name="email"
+          placeholder="Email"
+          required
+        />
+        <input
+          className="input-field"
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+        />
         <button className="auth-button" type="submit" disabled={submitting}>
           {flow === "signIn" ? "Sign in" : "Sign up"}
         </button>
@@ -44,13 +71,13 @@ export function SignInForm() {
         </div>
       </form>
       <div className="flex items-center justify-center my-3">
-          <hr className="my-4 grow" />
-          <span className="mx-4 text-slate-400 ">or</span>
-          <hr className="my-4 grow" />
-        </div>
-        <button className="auth-button" onClick={() => void signIn("anonymous")}>
-          Sign in anonymously
-        </button>
+        <hr className="my-4 grow" />
+        <span className="mx-4 text-slate-400">or</span>
+        <hr className="my-4 grow" />
+      </div>
+      <button className="auth-button" onClick={() => void signIn("anonymous")}>
+        Sign in anonymously
+      </button>
     </div>
   );
 }

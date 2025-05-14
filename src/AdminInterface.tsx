@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { toast } from "sonner";
+import { QRCodeCanvas } from "qrcode.react"; // Import QRCode component
+
+// Initialize sound effects
+const correctSound = new Audio("src/sounds/correct.mp3");
+const incorrectSound = new Audio("src/sounds/incorrect.mp3");
 
 export function AdminInterface({ onBack }: { onBack: () => void }) {
   const [name, setName] = useState("");
   const [numPlayers, setNumPlayers] = useState(2);
   const [timePerQuestion, setTimePerQuestion] = useState(30);
   const [competitionCode, setCompetitionCode] = useState<string>();
-  
+
   const createCompetition = useMutation(api.competitions.createCompetition);
   const startCompetition = useMutation(api.competitions.startCompetition);
   const endCompetition = useMutation(api.competitions.endCompetition);
@@ -42,7 +47,7 @@ export function AdminInterface({ onBack }: { onBack: () => void }) {
   if (!competitionCode || !competition) {
     return (
       <div className="max-w-md mx-auto">
-        <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">&larr; Back</button>
+        <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">← Back</button>
         <h2 className="text-2xl font-bold mb-4">Create Competition</h2>
         <div className="space-y-4">
           <div>
@@ -65,7 +70,9 @@ export function AdminInterface({ onBack }: { onBack: () => void }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Time per Question (seconds)</label>
+            <label className="block text-sm font-medium mb-1">
+              Time per Question (seconds)
+            </label>
             <input
               type="number"
               min="10"
@@ -88,12 +95,21 @@ export function AdminInterface({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">&larr; Back</button>
+      <button onClick={onBack} className="mb-4 text-blue-500 hover:underline">
+        ← Back
+      </button>
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Competition: {competition.name}</h2>
-          <div className="text-lg font-mono bg-gray-100 p-2 rounded">
-            Code: {competition.code}
+          <div className="flex flex-col items-center bg-gray-100 p-2 rounded">
+            <span className="text-sm font-medium mb-1">Scan to Join</span>
+            <QRCodeCanvas
+              value={competition.code}
+              size={128}
+              includeMargin={true}
+              className="rounded"
+            />
+            <span className="text-sm font-mono mt-1">Code: {competition.code}</span>
           </div>
         </div>
 
@@ -116,13 +132,19 @@ export function AdminInterface({ onBack }: { onBack: () => void }) {
                 {player._id === competition.currentBuzzer && (
                   <div className="mt-2 flex gap-2">
                     <button
-                      onClick={() => updateScore({ playerId: player._id, correct: true })}
+                      onClick={() => {
+                        correctSound.play().catch((e) => console.error("Sound play error:", e));
+                        updateScore({ playerId: player._id, correct: true });
+                      }}
                       className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
                     >
                       Correct
                     </button>
                     <button
-                      onClick={() => updateScore({ playerId: player._id, correct: false })}
+                      onClick={() => {
+                        incorrectSound.play().catch((e) => console.error("Sound play error:", e));
+                        updateScore({ playerId: player._id, correct: false });
+                      }}
                       className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       Incorrect
@@ -135,9 +157,7 @@ export function AdminInterface({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="flex justify-between items-center">
-          <div>
-            Question {competition.currentQuestion}
-          </div>
+          <div>Question {competition.currentQuestion}</div>
           {competition.status === "waiting" && (
             <button
               onClick={() => startCompetition({ competitionId: competition._id })}
