@@ -37,7 +37,7 @@ export function PlayerInterface({ onBack }: { onBack: () => void }) {
     if (!playerId) return;
     try {
       // Play buzz sound
-      const buzzSound = new Audio("src/sounds/Buzz.mp3");
+      const buzzSound = new Audio("/sounds/Buzz.mp3");
       buzzSound.play().catch((error) => console.error("Error playing sound:", error));
       await buzz({ playerId });
     } catch (error) {

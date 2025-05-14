@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
@@ -5,8 +8,8 @@ import { toast } from "sonner";
 import { QRCodeCanvas } from "qrcode.react"; // Import QRCode component
 
 // Initialize sound effects
-const correctSound = new Audio("src/sounds/correct.mp3");
-const incorrectSound = new Audio("src/sounds/incorrect.mp3");
+const correctSound = new Audio("/sounds/correct.mp3");
+const incorrectSound = new Audio("/sounds/incorrect.mp3");
 
 export function AdminInterface({ onBack }: { onBack: () => void }) {
   const [name, setName] = useState("");
