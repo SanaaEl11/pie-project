@@ -68,7 +68,20 @@ function Inscrire({ onBack, onSignIn }: InscrireProps) {
     setSubmitting(true);
 
     try {
-      // Create the user record in the database
+      // First, sign in the user to get the auth ID
+      const formData = new FormData();
+      formData.set("name", `${firstName} ${lastName}`);
+      formData.set("email", email);
+      formData.set("password", password);
+      formData.set("flow", "signUp");
+
+      const authResult = await signIn("password", formData);
+      
+      if (!authResult) {
+        throw new Error("Failed to create authentication");
+      }
+
+      // Then create the user record in the database
       await createUser({
         name: `${firstName} ${lastName}`,
         email: email,
@@ -81,7 +94,7 @@ function Inscrire({ onBack, onSignIn }: InscrireProps) {
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
           </svg>
-          <span>Account created successfully!</span>
+          <span>Inscription réussie! Bienvenue sur Quiz Buzzer!</span>
         </div>,
         {
           style: {
@@ -93,34 +106,45 @@ function Inscrire({ onBack, onSignIn }: InscrireProps) {
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             animation: 'slideIn 0.5s ease-out',
           },
-          duration: 3000,
+          duration: 1500,
           className: 'animate-slide-in',
         }
       );
       
+      // Redirect to SeConnecte page after successful registration
+      setTimeout(() => {
+        onSignIn();
+      }, 1500);
+      
     } catch (error: any) {
-      toast.error(error.message || "Could not create account. Please try again.");
+      console.error("Sign up error:", error);
+      toast.error(error.message || "Could not create account. Please try again or sign in if you already have an account.");
     } finally {
       setSubmitting(false);
     }
   };
 
   // Handle anonymous sign in
-  const handleAnonymousSignIn = () => {
+  const handleAnonymousSignIn = async () => {
     setSubmitting(true);
-    void (async () => {
-      try {
-        await signIn("anonymous");
-        await createUser({
-          isAnonymous: true,
-        });
-        toast.success("Signed in anonymously!");
-      } catch (error: any) {
-        toast.error("Could not sign in anonymously. Please try again.");
-      } finally {
-        setSubmitting(false);
+    try {
+      const authResult = await signIn("anonymous");
+      
+      if (!authResult) {
+        throw new Error("Failed to sign in anonymously");
       }
-    })();
+
+      await createUser({
+        isAnonymous: true,
+      });
+      
+      toast.success("Signed in anonymously!");
+    } catch (error: any) {
+      console.error("Anonymous sign in error:", error);
+      toast.error("Could not sign in anonymously. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Fix the form submission handler
@@ -557,7 +581,7 @@ function Inscrire({ onBack, onSignIn }: InscrireProps) {
 
             {/* Anonymous Sign In */}
             <Button
-              onClick={handleAnonymousSignIn}
+              onClick={() => void handleAnonymousSignIn()}
               variant="outlined"
               size="lg"
               className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-3 rounded-xl transition-all duration-300"
