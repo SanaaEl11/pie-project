@@ -3,6 +3,14 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
 const applicationTables = {
+  users: defineTable({
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    createdAt: v.optional(v.string()),
+    role: v.optional(v.string()),
+    isAnonymous: v.optional(v.boolean()),
+  }).index("by_email", ["email"]),
+
   competitions: defineTable({
     name: v.string(),
     code: v.string(),

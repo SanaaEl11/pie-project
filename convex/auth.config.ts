@@ -5,5 +5,12 @@ export default {
       applicationID: "convex",
     },
   ],
+  password: {
+    minLength: 6,
+    requireUppercase: true,
+    requireLowercase: true,
+    requireNumbers: true,
+    requireSpecialChars: true,
+  },
 };
 
